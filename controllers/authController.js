@@ -33,7 +33,7 @@ const authController={
           admin: user.isAdmin 
          },
          process.env.JWT_ACCESS_KEY,
-         {expiresIn:"1200s"})
+         {expiresIn:"10s"})
       },
       //Gennate Refresh Token
       generateRefreshToken :(user)=>{
@@ -74,21 +74,23 @@ const authController={
                 sameSite:"strict"
               })
                const{password,...other}=user._doc;
-               return res.status(200).json({...other,accessToken})
+              
+               return res.status(200).json({...other,accessToken,refreshToken})
+
             }
 
         }catch (err) {
-
           return res.status(500).json(err);
         }
 
       },
       requestRefreshToken: async(req, res) =>{
         //lay refresh token cua user
-        const refreshToken =  req.cookies.refreshToken;
+        
+        const refreshToken =  req.body.refresh;
         //check refresh token cua user hay khong
         if(!refreshTokens.includes(refreshToken)){
-          return res.status(403).json("Refresh Token is not valid");
+          return res.status(400).json("Refresh Token is not valid");
         }
         if(!refreshToken){
          return res.status(401).json("You're not authenticated")
@@ -118,7 +120,6 @@ const authController={
             sameSite:"strict"
           });
          return res.status(200).json({accessToken:newAccessToken})
-
         })
       },
       userLogout: async(req, res, next) => {
@@ -136,4 +137,4 @@ const authController={
 //2.Cookies
 //3. Redux Store
 //HTTPONLY COOKIES->REFESH TOKEN
-module.exports=authController;
+module.exports=authController; 
